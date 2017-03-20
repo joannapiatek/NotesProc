@@ -2,15 +2,14 @@
 # from matplotlib import pyplot as plt
 import sys
 import cv2
-
-
 from binarization import binarize_image
 
 img = cv2.imread('img/frag2.jpg', 0)
 binarized_image = binarize_image(img)
 
+params = list()
+params.append(cv2.IMWRITE_PNG_STRATEGY_RLE)
 
-
-cv2.imwrite('img/frag2_binar_filters.png', binarized_image)
+cv2.imwrite('img/test.png', binarized_image, params)
 
 sys.exit(0)
