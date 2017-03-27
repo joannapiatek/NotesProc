@@ -7,9 +7,6 @@ from binarization import binarize_image
 img = cv2.imread('img/frag2.jpg', 0)
 binarized_image = binarize_image(img)
 
-params = list()
-params.append(cv2.IMWRITE_PNG_STRATEGY_RLE)
-
-cv2.imwrite('img/test.png', binarized_image, params)
+cv2.imwrite('img/test.png', binarized_image)
 
 sys.exit(0)

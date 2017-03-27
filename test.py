@@ -12,13 +12,12 @@ imgTransposed = zip(*img)
 encodedLines = get_color_sets_lengths(imgTransposed)
 (staffLineHeight, staffSpaceHeight) = calc_staff_heights(encodedLines)
 
-#
+
 imgHeight = np.shape(img)[0]
 imgWidth = np.shape(img)[1]
-staffLines = []
-# zle
-graph = nx.from_numpy_matrix(img)
+graph = create_graph(img)
 
+staffLines = []
 BLACK_PERC = 0.75;
 BLACK_RUN = staffSpaceHeight;
 STRIP_HEIGHT = staffSpaceHeight;
@@ -33,18 +32,6 @@ for row in img:
     path = get_shortest_path(graph, start, end)
     staffLines.append(path)
     loopCounter += 1
-# Point2D start(0, row);
-# Point2D end(ImageWidth-1, row);
-# Path path = findShortestPath (start, end);
-# if(blackPercentage(path) < BLACK_PERC)
-# continue;
-# path = trimPath(path);
-# if(corrcoef(path) < CORRCOEF)
-# continue;
-# addPathTosetOfStaffLines(path);
-# }
-
-#
 
 sys.exit(0)
 
