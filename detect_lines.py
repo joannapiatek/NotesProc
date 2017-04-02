@@ -5,8 +5,9 @@ import numpy as np
 from itertools import *
 from collections import Counter
 import networkx as nx
-from networkx.algorithms import bipartite
-from scipy import sparse
+import Graphs.Helpers as gh
+import Graphs.Models as gm
+import Constants.Colors as Colors
 
 
 def encode_rle(x):
@@ -34,18 +35,58 @@ def get_color_sets_lengths(image):
     return encoded_lines
 
 
+# test performance if edges added as a list
 def create_graph(img):
+    img_size = np.shape(img)
 
-    size = np.shape(img)
-    return nx.Graph(img)
-    # matrix = sparse.csr_matrix(img)
-    #
-    # if is_img_square:
-    #     return nx.from_numpy_matrix(matrix)
-    # else:
-    #     return bipartite.from_biadjacency_matrix(matrix)
+    end = img_size[0]
+    end_col = img_size[1]
+
+    graph = nx.Graph()
+
+    for row in range(0, end):
+        for col in range(0, end_col):
+            color = img[row][col]
+            nbhs = gh.get_neighbours((row, col), img, img_size)
+            edges = gh.get_edges(gm.Pixel(row, col, color), nbhs)
+            for edge in edges:
+                graph.add_edge(edge.start, edge.end, weight=edge.weight)
+
+    return graph
 
 
-def get_shortest_path(graph, source, target):
-    return nx.single_source_dijkstra(graph, source, target) # nx.dijkstra_path(graph, source, target)
+def is_path_black_enough(path, img):
 
+    black_pixels_count = 0
+
+    for pixel in path:
+        values = pixel.split("_")
+        row = int(values[0])
+        col = int(values[1])
+        color = img[row][col]
+        if color == Colors.BLACK:
+            black_pixels_count += 1
+
+    path_leng = np.shape(path)[0]
+    compare = black_pixels_count/(path_leng * 1.0)
+    if compare > 0.7:
+        return True
+    return False
+
+
+def detect_stafflines(graph, img):
+    staff_lines = []
+    img_size = np.shape(img)
+    end = img_size[0]
+
+    for row in range(0, end):
+        if Colors.BLACK not in img[row]:
+            continue
+
+        start_node = str(row) + '_' + str(0)
+        end_node = str(row) + '_' + str(end)
+        path = nx.bidirectional_dijkstra(graph, start_node, end_node)
+        if is_path_black_enough(path[1], img):
+            staff_lines.append(path)
+
+    return staff_lines
